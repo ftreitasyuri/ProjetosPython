@@ -1,0 +1,5 @@
+Criando um novo bot
+
+1- Executar o comando: python -m pip install --upgrade cookiecutter
+2- Excutar o comando: python -m cookiecutter https://github.com/botcity-dev/bot-python-template/archive/v2.zip
+3- Escolher o template desejado (Web ou Desktop)
