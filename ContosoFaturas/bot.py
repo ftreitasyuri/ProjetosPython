@@ -1,60 +1,115 @@
-"""
-WARNING:
-
-Please make sure you install the bot with `pip install -e .` in order to get all the dependencies
-on your Python environment.
-
-Also, if you are using PyCharm or another IDE, make sure that you use the SAME Python interpreter
-as your IDE.
-
-If you get an error like:
-```
-ModuleNotFoundError: No module named 'botcity'
-```
-
-This means that you are likely using a different Python interpreter than the one used to install the bot.
-To fix this, you can either:
-- Use the same interpreter as your IDE and install your bot with `pip install --upgrade -r requirements.txt`
-- Use the same interpreter as the one used to install the bot (`pip install --upgrade -r requirements.txt`)
-
-Please refer to the documentation for more information at https://documentation.botcity.dev/
-"""
-
 # Import for the Desktop Bot
+from http.client import NOT_FOUND
 from botcity.core import DesktopBot
+import pandas as pd
 
-# Import for integration with BotCity Maestro SDK
-from botcity.maestro import *
+bot = DesktopBot()
+# Caminho do contoso exe
+path_app = r"C:\Program Files (x86)\Contoso, Inc\Contoso Invoicing\LegacyInvoicingApp.exe"
+    
+# Abrindo o contoso
+bot.execute(path_app)
+bot.wait(2000)
 
-# Disable errors if we are not connected to Maestro
-BotMaestroSDK.RAISE_NOT_CONNECTED = False
+#Maximizando a tela
 
-def main():
-    # Runner passes the server url, the id of the task being executed,
-    # the access token and the parameters that this task receives (when applicable).
-    maestro = BotMaestroSDK.from_sys_args()
-    ## Fetch the BotExecution with details from the task, including parameters
-    execution = maestro.get_execution()
-
-    print(f"Task ID is: {execution.task_id}")
-    print(f"Task Parameters are: {execution.parameters}")
-
-    bot = DesktopBot()
-    bot.browse("http://www.botcity.dev")
-
-    # Implement here your logic...
-    ...
-
-    # Uncomment to mark this task as finished on BotMaestro
-    # maestro.finish_task(
-    #     task_id=execution.task_id,
-    #     status=AutomationTaskFinishStatus.SUCCESS,
-    #     message="Task Finished OK."
-    # )
-
-def not_found(label):
-    print(f"Element not found: {label}")
+if not bot.find( "Maximo", matching=0.97, waiting_time=10000):
+    NOT_FOUND("Maximo")
+bot.click()
 
 
-if __name__ == '__main__':
-    main()
+bot.wait(2000)
+
+
+dados = pd.read_excel('DadosContoso.xlsx')
+
+if not bot.find( "invoices", matching=0.97, waiting_time=10000):
+    NOT_FOUND("invoices")
+bot.click()
+
+def cadastraFaturas(data, conta, contato, valor, status):
+
+    if not bot.find( "novo-registro", matching=0.97, waiting_time=10000):
+        NOT_FOUND("novo-registro")
+    bot.click()
+    
+    #Iniciando o preenchimento do novo resgistro
+     
+    if not bot.find( "date", matching=0.97, waiting_time=10000):
+         NOT_FOUND("date")
+    bot.click_relative(69, 13)
+    
+    #Deletando informações do campo Date:
+    bot.type_keys(['home'])
+    bot.type_keys(['shift', 'end'])
+    
+    # Inserindo a data
+    bot.paste(data)
+    # Pulando para o próximo campo
+    bot.tab()    
+        
+    # Nova conta
+        
+    bot.paste(conta)
+    bot.tab()
+    
+    # Novo contato 
+    
+    bot.paste(contato)
+    bot.tab()    
+    
+    # Novo amount
+    
+    bot.paste(valor)   
+    
+    # Novo Status
+    
+    if not bot.find( "status-inicio", matching=0.97, waiting_time=10000):
+        NOT_FOUND("status-inicio")
+    bot.click_relative(117, 9)
+    
+    # Lógica de onde clicar
+    
+    coluna = status
+    
+    if coluna == "Univoiced":
+            
+        if not bot.find( "Univoiced", matching=0.97, waiting_time=10000):
+            NOT_FOUND("Univoiced")
+        bot.click_relative(89, 35)
+    elif coluna == "Invoiced":
+            
+        if not bot.find( "invoiced", matching=0.97, waiting_time=10000):
+            NOT_FOUND("invoiced")
+        bot.click_relative(100, 53)
+        
+    else:
+    
+        if not bot.find( "paid", matching=0.97, waiting_time=10000):
+            NOT_FOUND("paid")
+        bot.click_relative(104, 80)
+        
+    # Salvando o registro
+    if not bot.find( "save", matching=0.97, waiting_time=10000):
+        NOT_FOUND("save")
+    bot.click()
+    
+        
+    
+        
+# print('Cadastro concluido com sucesso')
+    
+    
+# print(dados)
+# # 
+# 
+for coluna in dados.itertuples():
+    cadastraFaturas(str(coluna[1]), str(coluna[2]), str(coluna[3]), str(coluna[4]), str(coluna[5]))
+
+if not bot.find( "fecharPrograma", matching=0.97, waiting_time=10000):
+    NOT_FOUND("fecharPrograma")
+bot.click()
+
+
+
+print("Missão cumprida :)")
