@@ -3,6 +3,7 @@ from http.client import NOT_FOUND
 from botcity.core import DesktopBot
 import pandas as pd
 
+
 bot = DesktopBot()
 # Caminho do contoso exe
 path_app = r"C:\Program Files (x86)\Contoso, Inc\Contoso Invoicing\LegacyInvoicingApp.exe"
@@ -12,7 +13,6 @@ bot.execute(path_app)
 bot.wait(2000)
 
 #Maximizando a tela
-
 if not bot.find( "Maximo", matching=0.97, waiting_time=10000):
     NOT_FOUND("Maximo")
 bot.click()
@@ -42,6 +42,7 @@ def cadastraFaturas(data, conta, contato, valor, status):
     #Deletando informações do campo Date:
     bot.type_keys(['home'])
     bot.type_keys(['shift', 'end'])
+    
     
     # Inserindo a data
     bot.paste(data)
